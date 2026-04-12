@@ -1,16 +1,17 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-
 	interface BaseProps {
 		children: Snippet;
 		isSecondary?: boolean;
 		isDanger?: boolean;
 		isMenu?: boolean;
+		isOutline?: boolean;
+		fullWidth?: boolean;
 	}
-
 	interface ButtonProps extends BaseProps {
-		onclick: (event: MouseEvent) => void;
+		onclick?: (event: MouseEvent) => void;
 		href?: never;
+		type?: 'submit' | 'button';
 	}
 
 	interface LinkProps extends BaseProps {
@@ -20,8 +21,17 @@
 
 	type ComponentProps = ButtonProps | LinkProps;
 
-	let { children, isDanger, isSecondary, isMenu, href, onclick, ...rest }: ComponentProps =
-		$props();
+	let {
+		children,
+		isDanger,
+		isSecondary,
+		isMenu,
+		fullWidth,
+		isOutline,
+		href,
+		onclick,
+		...rest
+	}: ComponentProps = $props();
 </script>
 
 {#if href}
@@ -43,6 +53,8 @@
 		class:btn-secondary={isSecondary}
 		class:btn-danger={isDanger}
 		class:btn-menu={isMenu}
+		class:full-width={fullWidth}
+		class:btn-outline={isOutline}
 	>
 		{@render children()}
 	</button>
@@ -83,5 +95,15 @@
 	.btn-menu {
 		min-width: 150px;
 		padding: 8px 20px;
+	}
+
+	.full-width {
+		width: 100%;
+	}
+
+	.btn-outline {
+		background: transparent;
+		border: 1px solid currentColor;
+		color: inherit;
 	}
 </style>
