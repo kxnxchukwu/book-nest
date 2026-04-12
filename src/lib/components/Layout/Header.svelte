@@ -9,7 +9,7 @@
 </script>
 
 <header>
-	<a href="/" aria-label="Book Nest logo, click to go to home">
+	<a href={user ? '/private/dashboard' : '/'} aria-label="Book Nest logo, click to go to home">
 		<img class="logo" src={bookNestLogo} alt="Book Nest logo" />
 	</a>
 	<nav>
