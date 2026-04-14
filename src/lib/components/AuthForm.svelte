@@ -18,56 +18,77 @@
 	let { isRegistration, form }: ComponentProps = $props();
 </script>
 
-<div class="auth-wrapper">
+<div class="auth-wrap">
 	<div class="auth-header">
-		<p class="app-label">Book Nest</p>
-		<h1>{isRegistration ? 'Create an account' : 'Welcome back'}</h1>
-		<p class="subtitle">
-			{isRegistration ? 'Sign up to get started' : 'Sign in to your account to continue'}
+		<span class="app-eyebrow">Book Nest</span>
+		<h1 class="auth-title">{isRegistration ? 'Create your account' : 'Welcome back'}</h1>
+		<p class="auth-subtitle">
+			{isRegistration
+				? 'Start building your personal library.'
+				: 'Sign in to continue to your library.'}
 		</p>
 	</div>
 
 	<form class="auth-form" method="POST" action={isRegistration ? '' : '?/signInWithPassword'}>
 		{#if form?.errors?.length}
-			<div class="errors">
-				{#each form.errors as error, index (index)}
-					<div class="auth-error"><p>{error}</p></div>
+			<div class="error-list">
+				{#each form.errors as error, i (i)}
+					<div class="error-item">
+						<svg
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line
+								x1="12"
+								y1="16"
+								x2="12.01"
+								y2="16"
+							/></svg
+						>
+						<p>{error}</p>
+					</div>
 				{/each}
 			</div>
 		{/if}
 
 		{#if isRegistration}
 			<div class="field">
-				<label for="name">Name</label>
-				<input id="name" type="text" name="name" placeholder="Jane Doe" value={form?.name || ''} />
+				<label for="name">Full name</label>
+				<input
+					id="name"
+					type="text"
+					name="name"
+					placeholder="Jane Doe"
+					value={form?.name || ''}
+					autocomplete="name"
+				/>
 			</div>
 		{/if}
 
 		<div class="field">
-			<label for="email">Email</label>
+			<label for="email">Email address</label>
 			<input
 				id="email"
 				type="email"
 				name="email"
 				placeholder="you@example.com"
 				value={form?.email || ''}
+				autocomplete="email"
 			/>
 		</div>
 
 		<div class="field">
-			{#if isRegistration}
-				<label for="password">Password</label>
-			{:else}
-				<div class="field-header">
-					<label for="password">Password</label>
-				</div>
-			{/if}
+			<label for="password">Password</label>
 			<input
 				id="password"
 				type="password"
 				name="password"
 				placeholder="••••••••"
 				value={form?.password || ''}
+				autocomplete={isRegistration ? 'new-password' : 'current-password'}
 			/>
 		</div>
 
@@ -80,20 +101,38 @@
 					name="passwordConfirmation"
 					placeholder="••••••••"
 					value={form?.passwordConfirmation || ''}
+					autocomplete="new-password"
 				/>
 			</div>
 		{/if}
 
-		<Button type="submit">{isRegistration ? 'Create account' : 'Sign in'}</Button>
+		<Button type="submit" fullWidth>{isRegistration ? 'Create account' : 'Sign in'}</Button>
 	</form>
 
 	<div class="divider"><span>or</span></div>
 
 	<form method="POST" action={isRegistration ? '/login/?/googleLogin' : '?/googleLogin'}>
-		<Button type="submit" isOutline fullWidth>Continue with Google</Button>
+		<Button type="submit" isOutline fullWidth>
+			<svg width="16" height="16" viewBox="0 0 24 24" style="flex-shrink:0"
+				><path
+					fill="#4285F4"
+					d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+				/><path
+					fill="#34A853"
+					d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+				/><path
+					fill="#FBBC05"
+					d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+				/><path
+					fill="#EA4335"
+					d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+				/></svg
+			>
+			Continue with Google
+		</Button>
 	</form>
 
-	<p class="auth-hint">
+	<p class="auth-foot">
 		{#if isRegistration}
 			Already have an account? <a href="/login">Sign in</a>
 		{:else}
@@ -103,83 +142,82 @@
 </div>
 
 <style>
-	.auth-wrapper {
-		max-width: 420px;
-		margin: 80px auto 0;
-		padding: 0 1rem;
+	.auth-wrap {
+		width: 100%;
+		max-width: 400px;
+		margin: 0 auto;
+		padding: 40px 24px 60px;
 	}
 
 	.auth-header {
-		margin-bottom: 2.5rem;
+		margin-bottom: 32px;
 	}
 
-	.app-label {
-		font-size: 13px;
-		font-weight: 500;
+	.app-eyebrow {
+		display: block;
+		font-size: 0.75rem;
+		font-weight: 600;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
-		color: grey;
-		margin: 0 0 8px;
+		color: var(--accent-mid);
+		margin-bottom: 10px;
 	}
 
-	h1 {
-		font-size: 28px;
+	.auth-title {
+		font-size: 1.9rem;
 		font-weight: 500;
-		margin: 0 0 6px;
 		line-height: 1.2;
+		margin-bottom: 6px;
 	}
 
-	.subtitle {
-		font-size: 14px;
-		color: grey;
-		margin: 0;
+	.auth-subtitle {
+		font-size: 0.9rem;
+		color: var(--text-muted);
 	}
 
 	.auth-form {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
-		margin-bottom: 1.5rem;
+		gap: 14px;
+		margin-bottom: 20px;
 	}
 
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
-	}
-
-	.field-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
+		gap: 5px;
 	}
 
 	label {
-		font-size: 13px;
-		color: grey;
+		font-size: 0.82rem;
+		font-weight: 500;
+		color: var(--text-muted);
 	}
 
-	input {
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.errors {
+	.error-list {
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: 6px;
 		margin-bottom: 4px;
 	}
 
-	.auth-error {
-		background-color: rgb(122, 35, 35);
-		color: white;
-		font-size: 14px;
-		border-radius: 8px;
-		padding: 10px 12px;
+	.error-item {
+		display: flex;
+		align-items: flex-start;
+		gap: 8px;
+		background: rgba(155, 41, 41, 0.1);
+		border: 1px solid rgba(155, 41, 41, 0.25);
+		color: var(--danger);
+		font-size: 0.83rem;
+		border-radius: var(--r-md);
+		padding: 9px 12px;
 	}
 
-	.auth-error p {
+	.error-item svg {
+		flex-shrink: 0;
+		margin-top: 1px;
+	}
+	.error-item p {
 		margin: 0;
 	}
 
@@ -187,9 +225,9 @@
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		margin: 1rem 0;
-		color: grey;
-		font-size: 12px;
+		margin: 16px 0;
+		color: var(--text-muted);
+		font-size: 0.75rem;
 	}
 
 	.divider::before,
@@ -197,19 +235,20 @@
 		content: '';
 		flex: 1;
 		height: 1px;
-		background: #e5e5e5;
+		background: var(--border);
 	}
 
-	.auth-hint {
-		font-size: 13px;
-		color: grey;
+	.auth-foot {
+		font-size: 0.83rem;
+		color: var(--text-muted);
 		text-align: center;
-		margin-top: 1.5rem;
+		margin-top: 20px;
 	}
 
-	.auth-hint a {
-		color: inherit;
+	.auth-foot a {
+		color: var(--accent);
+		font-weight: 500;
 		border-bottom: 1px solid currentColor;
-		text-decoration: none;
+		padding-bottom: 1px;
 	}
 </style>
