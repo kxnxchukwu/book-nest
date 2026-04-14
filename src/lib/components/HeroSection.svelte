@@ -1,5 +1,6 @@
 <script lang="ts">
 	import heroImage from '$assets/hero.png';
+	import { Button } from '$components';
 </script>
 
 <section class="default-margin hero">
@@ -14,7 +15,7 @@
 			This app offers a beautifully designed, easy-to-use interface that makes managing your book
 			collection a joy.
 		</h4>
-		<button>Sign Up</button>
+		<Button href="/register">Sign Up</Button>
 	</div>
 	<img class="hero-image" src={heroImage} alt="Desk with a lamp and stacked books" />
 </section>
