@@ -130,6 +130,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@google/generative-ai@npm:^0.24.1":
+  version: 0.24.1
+  resolution: "@google/generative-ai@npm:0.24.1"
+  checksum: 10c0/8da77fc648b04fc2ecef53e75230e2ee67a8fd29a34b6b8874e77a7332b2a1e4b51d44dd9eb604fb063ed8ea46d293aac5b1e2a955ae2435e2582a265f2cb80d
+  languageName: node
+  linkType: hard
+
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -844,6 +851,7 @@ __metadata:
   dependencies:
     "@eslint/compat": "npm:^2.0.4"
     "@eslint/js": "npm:^10.0.1"
+    "@google/generative-ai": "npm:^0.24.1"
     "@iconify/svelte": "npm:^5.2.1"
     "@supabase/ssr": "npm:^0.10.2"
     "@supabase/supabase-js": "npm:^2.103.0"
@@ -860,6 +868,7 @@ __metadata:
     supabase: "npm:^2.89.1"
     svelte: "npm:^5.55.2"
     svelte-check: "npm:^4.4.6"
+    svelte-file-dropzone: "npm:^2.0.9"
     typescript: "npm:^6.0.2"
     typescript-eslint: "npm:^8.58.1"
     vite: "npm:^8.0.7"
@@ -1272,6 +1281,15 @@ __metadata:
   dependencies:
     flat-cache: "npm:^4.0.0"
   checksum: 10c0/9e2b5938b1cd9b6d7e3612bdc533afd4ac17b2fc646569e9a8abbf2eb48e5eb8e316bc38815a3ef6a1b456f4107f0d0f055a614ca613e75db6bf9ff4d72c1638
+  languageName: node
+  linkType: hard
+
+"file-selector@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "file-selector@npm:0.6.0"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/477ca1b56274db9fee1a8a623c4bfef580389726a5fef843af8c1f2f17f70ec2d1e41b29115777c92e120a15f1cca734c6ef36bb48bfa2ee027c68da16cd0d28
   languageName: node
   linkType: hard
 
@@ -2330,6 +2348,17 @@ __metadata:
     svelte:
       optional: true
   checksum: 10c0/9b7bc592989ccdb5a04b98fcfafab602a3f2537988867261ad41f1a3b6deab121b2082d81b02c7a7db6d3da95ffe42496540569426f34b14c32088c5e0c26993
+  languageName: node
+  linkType: hard
+
+"svelte-file-dropzone@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "svelte-file-dropzone@npm:2.0.9"
+  dependencies:
+    file-selector: "npm:^0.6.0"
+  peerDependencies:
+    svelte: ^3.54.0 || ^4.0.0 || ^5
+  checksum: 10c0/049cb0d5dc11707906de4d43e36ae6148816d663650a245cd3a1d62aa77fec1f23001db376912b6e8e673ac43d8a8ee65b2db4a7367fed8318fa42e26254fec9
   languageName: node
   linkType: hard
 
