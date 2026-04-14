@@ -5,11 +5,8 @@
 	import Dropzone from 'svelte-file-dropzone';
 
 	interface BookPageProps {
-		data: {
-			book: Book;
-		};
+		data: { book: Book };
 	}
-
 	interface FileDropDetail {
 		acceptedFiles: File[];
 		rejectedFiles: File[];
@@ -31,12 +28,7 @@
 
 	async function toggleEditModeAndSaveToDatabase() {
 		if (isEditMode) {
-			await userContext.updateBook(book.id, {
-				title,
-				author,
-				description,
-				genre
-			});
+			await userContext.updateBook(book.id, { title, author, description, genre });
 		}
 		isEditMode = !isEditMode;
 	}
@@ -44,15 +36,10 @@
 	async function updateReadingStatus() {
 		const hasStartedReading = Boolean(book.started_reading_on);
 		const currentTimestamp = new Date().toISOString();
-
 		if (hasStartedReading) {
-			await userContext.updateBook(book.id, {
-				finished_reading_on: currentTimestamp
-			});
+			await userContext.updateBook(book.id, { finished_reading_on: currentTimestamp });
 		} else {
-			await userContext.updateBook(book.id, {
-				started_reading_on: currentTimestamp
-			});
+			await userContext.updateBook(book.id, { started_reading_on: currentTimestamp });
 		}
 	}
 
@@ -62,94 +49,106 @@
 
 	async function handleDrop(e: CustomEvent<FileDropDetail>) {
 		const { acceptedFiles } = e.detail;
-
 		if (acceptedFiles.length) {
-			const file = acceptedFiles[0] as File;
-			await userContext.uploadBookCover(file, book.id);
+			await userContext.uploadBookCover(acceptedFiles[0] as File, book.id);
 		}
 	}
+
+	let readingStatus = $derived(
+		book.finished_reading_on
+			? 'Finished'
+			: book.started_reading_on
+				? 'Currently reading'
+				: 'Not started'
+	);
 </script>
 
-{#snippet bookInfo()}
-	<h2 class="book-title mt-m">{book.title}</h2>
-	<p class="book-author">by {book.author}</p>
-	<h4 class="mt-m mb-xs semi-bold">Your rating</h4>
-	<StarRating value={book.rating || 0} {updateDatabaseRating} />
-	<p class="small-font">
-		Click to {book.rating ? 'change' : 'give'} rating
-	</p>
-	{#if book.description}
-		<h4 class="mt-m mb-xs semi-bold">Description</h4>
-		<p class="mb-m">{book.description}</p>
-	{:else}
-		<h4 class="mt-m mb-xs semi-bold">No description yet.</h4>
-		<button class="block mb-m" onclick={() => console.log('toggle on the edit mode')}>
-			<p>Click to add one.</p>
-		</button>
-	{/if}
-	{#if !book.finished_reading_on}
-		<Button isSecondary={Boolean(book.started_reading_on)} onclick={updateReadingStatus}>
-			{book.started_reading_on ? 'I finished reading this book!' : 'I started reading this book'}
-		</Button>
-	{/if}
-	{#if book.genre}
-		<h4 class="mt-m mb-xs semi-bold">Genre</h4>
-		<p>{book.genre}</p>
-	{/if}
-{/snippet}
-
-{#snippet editFields()}
-	<form>
-		<input class="input input-title mt-m mb-xs" bind:value={title} type="text" name="title" />
-		<div class="input-author">
-			<p>by</p>
-			<input class="input" bind:value={author} type="text" name="author" />
-		</div>
-		<h4 class="mt-m mb-xs semi-bold">Your rating</h4>
-		<StarRating value={book.rating || 0} {updateDatabaseRating} />
-		<p class="small-font">
-			Click to {book.rating ? 'change' : 'give'} rating
-		</p>
-		<h4 class="mt-m mb-xs semi-bold">Description</h4>
-		<textarea
-			class="textarea mb-m"
-			name="description"
-			bind:value={description}
-			placeholder="Give a description."
-		></textarea>
-		{#if !book.finished_reading_on}
-			<Button isSecondary={Boolean(book.started_reading_on)} onclick={updateReadingStatus}>
-				{book.started_reading_on ? 'I finished reading this book!' : 'I started reading this book'}
-			</Button>
-		{/if}
-		<h4 class="mt-m mb-xs semi-bold">Genre</h4>
-		<input class="input" bind:value={genre} type="text" name="genre" />
-	</form>
-{/snippet}
-
 <div class="book-page">
-	<button onclick={goBack} aria-label="Go back">
-		<Icon icon="ep:back" width="40" />
+	<button class="back-btn" onclick={goBack} aria-label="Go back">
+		<Icon icon="ep:back" width="18" />
+		<span>Back</span>
 	</button>
-	<div class="book-container">
+
+	<div class="book-layout">
+		<!-- Left: Info / Edit -->
 		<div class="book-info">
 			{#if isEditMode}
-				{@render editFields()}
+				<input
+					class="edit-title"
+					bind:value={title}
+					type="text"
+					name="title"
+					placeholder="Book title"
+				/>
+				<div class="edit-author-row">
+					<span>by</span>
+					<input
+						class="edit-author"
+						bind:value={author}
+						type="text"
+						name="author"
+						placeholder="Author"
+					/>
+				</div>
 			{:else}
-				{@render bookInfo()}
+				<div class="status-badge">{readingStatus}</div>
+				<h2 class="book-title">{book.title}</h2>
+				<p class="book-author">by <em>{book.author}</em></p>
 			{/if}
-			<div class="buttons-container mt-m">
-				<Button isSecondary={true} onclick={toggleEditModeAndSaveToDatabase}
-					>{isEditMode ? 'Save changes' : 'Edit'}</Button
-				>
-				<Button isDanger={true} onclick={() => userContext.deleteBookFromLibrary(book.id)}
-					>Delete book from library</Button
-				>
+
+			<div class="section">
+				<h5>Your rating</h5>
+				<StarRating value={book.rating || 0} {updateDatabaseRating} />
+				<p class="small-font">Click to {book.rating ? 'update' : 'give a'} rating</p>
+			</div>
+
+			{#if isEditMode}
+				<div class="section">
+					<h5>Description</h5>
+					<textarea name="description" bind:value={description} placeholder="Add a description…"
+					></textarea>
+				</div>
+				<div class="section">
+					<h5>Genre</h5>
+					<input type="text" name="genre" bind:value={genre} placeholder="e.g. Fiction" />
+				</div>
+			{:else}
+				{#if book.description}
+					<div class="section">
+						<h5>Description</h5>
+						<p class="book-description">{book.description}</p>
+					</div>
+				{/if}
+				{#if book.genre}
+					<div class="section">
+						<h5>Genre</h5>
+						<p class="genre-tag">{book.genre}</p>
+					</div>
+				{/if}
+			{/if}
+
+			{#if !book.finished_reading_on}
+				<div class="section">
+					<Button isSecondary={Boolean(book.started_reading_on)} onclick={updateReadingStatus}>
+						{book.started_reading_on ? '✓ I finished this book' : 'Start reading'}
+					</Button>
+				</div>
+			{/if}
+
+			<div class="action-row">
+				<Button isSecondary onclick={toggleEditModeAndSaveToDatabase}>
+					{isEditMode ? 'Save changes' : 'Edit'}
+				</Button>
+				<Button isDanger onclick={() => userContext.deleteBookFromLibrary(book.id)}>Delete</Button>
 			</div>
 		</div>
-		<div class="book-cover">
+
+		<!-- Right: Cover -->
+		<div class="book-cover-area">
 			{#if book.cover_image}
-				<img src={book.cover_image} alt="" />
+				<div class="cover-frame">
+					<img src={book.cover_image} alt={book.title} />
+				</div>
 			{:else}
 				<Dropzone
 					on:drop={handleDrop}
@@ -158,8 +157,11 @@
 					maxSize={5 * 1024 * 1024}
 					containerClasses="dropzone-cover"
 				>
-					<Icon icon="bi:camera-fill" width="40" />
-					<p>Add book cover</p>
+					<div class="dropzone-inner">
+						<Icon icon="bi:camera-fill" width="28" />
+						<p>Drop or click to add cover</p>
+						<span class="small-font">Max 5 MB</span>
+					</div>
 				</Dropzone>
 			{/if}
 		</div>
@@ -167,66 +169,179 @@
 </div>
 
 <style>
-	.book-container {
-		display: flex;
-		justify-content: flex-start;
+	.book-page {
+		width: 100%;
 	}
 
-	.book-info {
-		width: 50%;
-	}
-
-	.book-cover {
-		width: 40%;
-		display: flex;
-		justify-content: center;
+	.back-btn {
+		display: inline-flex;
 		align-items: center;
-		border: 1px solid black;
-		border-radius: 15px;
-		min-height: 400px;
-		max-width: 450px;
-		margin-left: 80px;
+		gap: 6px;
+		color: var(--text-muted);
+		font-size: 0.875rem;
+		font-weight: 500;
+		padding: 6px 0;
+		margin-bottom: 28px;
+		transition: color 160ms ease;
+	}
+	.back-btn:hover {
+		color: var(--text);
 	}
 
-	.book-cover img {
-		object-fit: cover;
+	.book-layout {
+		display: flex;
+		gap: clamp(24px, 5vw, 64px);
+		align-items: flex-start;
+		flex-wrap: wrap;
+	}
+
+	/* ── Info panel ─── */
+	.book-info {
+		flex: 1;
+		min-width: 260px;
+	}
+
+	.status-badge {
+		display: inline-block;
+		font-size: 0.72rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--accent-mid);
+		background: var(--accent-glow);
+		border-radius: 99px;
+		padding: 3px 10px;
+		margin-bottom: 12px;
+	}
+
+	.book-title {
+		font-size: clamp(1.6rem, 4vw, 2.6rem);
+		line-height: 1.15;
+		margin-bottom: 8px;
+	}
+
+	.book-author {
+		color: var(--text-muted);
+		font-size: 1rem;
+		margin-bottom: 4px;
+	}
+
+	.section {
+		margin-top: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.book-description {
+		color: var(--text-muted);
+		line-height: 1.7;
+	}
+
+	.genre-tag {
+		display: inline-block;
+		font-size: 0.85rem;
+		padding: 4px 12px;
+		background: var(--bg-muted);
+		border-radius: 99px;
+		border: 1px solid var(--border);
+	}
+
+	.action-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 32px;
+	}
+
+	/* Edit mode inputs */
+	.edit-title {
+		font-family: 'Fraunces', serif;
+		font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+		font-weight: 500;
+		background: var(--bg-subtle);
+		border: 1.5px solid var(--border);
+		border-radius: var(--r-md);
+		padding: 10px 14px;
+		width: 100%;
+		color: var(--text);
+		margin-bottom: 10px;
+	}
+
+	.edit-author-row {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--text-muted);
+	}
+
+	.edit-author {
+		flex: 1;
+	}
+
+	/* ── Cover panel ─── */
+	.book-cover-area {
+		flex: 0 0 auto;
+		width: clamp(200px, 30vw, 320px);
+	}
+
+	.cover-frame {
+		border-radius: var(--r-lg);
+		overflow: hidden;
+		box-shadow: var(--shadow-lg);
+		aspect-ratio: 2/3;
+	}
+
+	.cover-frame img {
 		width: 100%;
 		height: 100%;
-		border-radius: inherit;
-	}
-
-	.input {
-		padding: 8px 4px;
-		width: 100%;
-	}
-
-	.textarea {
-		width: 100%;
-	}
-
-	.input-title {
-		font-size: 60px;
-		font-weight: bold;
-		font-family: 'EB Garamond', serif;
-	}
-
-	.input-author {
-		display: flex;
-		align-items: center;
-	}
-	.input-author p {
-		margin-right: 8px;
+		object-fit: cover;
+		display: block;
 	}
 
 	:global(.dropzone-cover) {
-		height: 100%;
-		border-radius: 15px !important;
+		width: 100% !important;
+		aspect-ratio: 2/3;
+		border-radius: var(--r-lg) !important;
+		border: 2px dashed var(--border-strong) !important;
+		background: var(--bg-muted) !important;
 		display: flex !important;
-		flex-direction: column !important;
-		justify-content: center !important;
 		align-items: center !important;
-		border: unset !important;
+		justify-content: center !important;
 		cursor: pointer;
-		border-style: solid !important;
+		transition:
+			background 160ms ease,
+			border-color 160ms ease !important;
+	}
+
+	:global(.dropzone-cover:hover) {
+		background: var(--bg-subtle) !important;
+		border-color: var(--accent) !important;
+	}
+
+	.dropzone-inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		color: var(--text-muted);
+		text-align: center;
+		padding: 16px;
+	}
+
+	.dropzone-inner p {
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	/* Mobile: stack cover above info */
+	@media (max-width: 640px) {
+		.book-layout {
+			flex-direction: column-reverse;
+		}
+		.book-cover-area {
+			width: min(240px, 70vw);
+			margin: 0 auto;
+		}
 	}
 </style>

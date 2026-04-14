@@ -1,27 +1,32 @@
-<script>
+<script src="ts">
 	import { SideNavigation } from '$components';
-
 	let { children } = $props();
 </script>
 
-<div class="auth-area">
+<div class="app-shell">
 	<SideNavigation />
-	<div class="main-area">
+	<main class="main-area">
 		{@render children()}
-	</div>
+	</main>
 </div>
 
 <style>
-	.auth-area {
+	.app-shell {
 		display: flex;
-		height: 100vh;
-		overflow: hidden;
+		min-height: calc(100vh - 64px);
 	}
 
 	.main-area {
 		flex: 1;
 		min-width: 0;
-		padding: 40px 4vw 100px 40px;
-		overflow-y: auto;
+		padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 48px);
+		/* Extra bottom padding for mobile bottom nav */
+		padding-bottom: calc(clamp(24px, 4vw, 48px) + env(safe-area-inset-bottom));
+	}
+
+	@media (max-width: 767px) {
+		.main-area {
+			padding-bottom: calc(80px + env(safe-area-inset-bottom));
+		}
 	}
 </style>
