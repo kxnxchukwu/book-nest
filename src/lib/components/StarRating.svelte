@@ -21,42 +21,49 @@
 	aria-label={isReadOnly ? `Rated ${value} out of 5 stars` : 'Rate this book'}
 	aria-readonly={isReadOnly}
 >
-	<div class="rating-container">
-		{#each Array(5) as _, i (i)}
-			<button
-				type="button"
-				class="star"
-				aria-label={isReadOnly ? `Rated ${i + 1} out of 5 stars` : `Rate ${i + 1} out of 5 stars`}
-				aria-pressed={!isReadOnly && value > i}
-				onclick={() => handleRating(i + 1)}
-				disabled={isReadOnly}
-			>
-				<span class="star-icon" style="--fill: {value > i ? 'gold' : 'rgba(100, 100, 100, 0.15)'}">
-					★
-				</span>
-			</button>
-		{/each}
-	</div>
+	{#each Array(5) as _, i (i)}
+		<button
+			type="button"
+			class="star"
+			class:filled={value > i}
+			class:read-only={isReadOnly}
+			aria-label={isReadOnly ? `${i + 1} star` : `Rate ${i + 1} out of 5`}
+			aria-pressed={!isReadOnly && value > i}
+			onclick={() => handleRating(i + 1)}
+			disabled={isReadOnly}>★</button
+		>
+	{/each}
 </div>
 
 <style>
-	.rating-container {
+	.rating {
 		display: inline-flex;
-		outline: none;
+		gap: 1px;
 	}
 
 	.star {
 		background: none;
 		border: none;
-		outline: none;
 		cursor: pointer;
-		padding: 0;
-		font-size: 32px;
-		color: transparent;
+		padding: 0 1px;
+		font-size: 1.1rem;
+		line-height: 1;
+		color: var(--border-strong);
+		transition:
+			color 120ms ease,
+			transform 100ms ease;
 	}
 
-	.star span {
-		display: inline-block;
-		color: var(--fill);
+	.star.filled {
+		color: #d4a240;
+	}
+
+	.star:not(.read-only):hover {
+		transform: scale(1.2);
+		color: #d4a240;
+	}
+
+	.star.read-only {
+		cursor: default;
 	}
 </style>
