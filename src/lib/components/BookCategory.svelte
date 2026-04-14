@@ -10,30 +10,44 @@
 	let { categoryName, booksToDisplay }: BookCategoryProps = $props();
 </script>
 
-<section class="book-category mb-m">
-	<h3 class="mb-s">{categoryName}</h3>
-	<div class="books-container">
-		{#each booksToDisplay as book, index (index)}
-			<BookCard {book} />
-		{/each}
-	</div>
-</section>
+{#if booksToDisplay.length > 0}
+	<section class="book-category">
+		<h5 class="category-label">{categoryName}</h5>
+		<div class="books-scroll">
+			{#each booksToDisplay as book, index (book.id ?? index)}
+				<BookCard {book} />
+			{/each}
+		</div>
+	</section>
+{/if}
 
 <style>
-	.books-container {
+	.book-category {
+		margin-bottom: 40px;
+	}
+
+	.category-label {
+		margin-bottom: 16px;
+	}
+
+	.books-scroll {
 		display: flex;
+		gap: 14px;
 		overflow-x: auto;
-		gap: 16px;
-		padding-bottom: 8px;
-		scrollbar-width: thin;
+		padding-bottom: 12px;
+		-webkit-overflow-scrolling: touch;
+		scroll-snap-type: x mandatory;
 	}
 
-	.books-container::webkit-scrollbar {
-		height: 6px;
+	.books-scroll > :global(*) {
+		scroll-snap-align: start;
 	}
 
-	.books-container::webkit-scrollbar-thumb {
-		background-color: rgba(0, 0, 0, 0.2);
-		border-radius: 3px;
+	.books-scroll::-webkit-scrollbar {
+		height: 4px;
+	}
+	.books-scroll::-webkit-scrollbar-thumb {
+		background: var(--border-strong);
+		border-radius: 99px;
 	}
 </style>
