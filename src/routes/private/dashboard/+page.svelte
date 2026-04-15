@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { BookCategory, AddBookModal } from '$components/index.svelte';
+	import { BookCategory, AddBookModal, ReadingCalendar } from '$components/index.svelte';
 	import { getUserState } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 
 	let userContext = getUserState();
 
-	let userName = $derived(userContext.userName ?? '');
+	let userName = $derived(userContext.userName);
 	let allBooks = $derived(userContext.allBooks ?? []);
 	let modalOpen = $state(false);
 </script>
@@ -44,6 +44,14 @@
 				>
 				<span class="stat-label">Reading</span>
 			</div>
+		</div>
+	{/if}
+
+	<!-- Reading calendar -->
+	{#if allBooks.length}
+		<div class="calendar-section mb-m">
+			<h5 class="mb-s">Reading activity</h5>
+			<ReadingCalendar />
 		</div>
 	{/if}
 
@@ -101,6 +109,7 @@
 </div>
 
 <AddBookModal open={modalOpen} onclose={() => (modalOpen = false)} />
+<ReadingCalendar />
 
 <style>
 	.dashboard {
