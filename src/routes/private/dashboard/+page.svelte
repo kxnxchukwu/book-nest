@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { BookCategory, AddBookModal, ReadingCalendar } from '$components/index.svelte';
+	import {
+		BookCategory,
+		AddBookModal,
+		ReadingCalendar,
+		ReadingGoals
+	} from '$components/index.svelte';
 	import { getUserState } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 
@@ -47,11 +52,17 @@
 		</div>
 	{/if}
 
-	<!-- Reading calendar -->
+	<!-- Activity + Goals -->
 	{#if allBooks.length}
-		<div class="calendar-section mb-m">
-			<h5 class="mb-s">Reading activity</h5>
-			<ReadingCalendar />
+		<div class="activity-row mb-m">
+			<div class="activity-col">
+				<h5 class="mb-s">Reading activity</h5>
+				<ReadingCalendar />
+			</div>
+			<div class="goals-col">
+				<h5 class="mb-s">Goals</h5>
+				<ReadingGoals />
+			</div>
 		</div>
 	{/if}
 
@@ -61,12 +72,6 @@
 			<BookCategory
 				booksToDisplay={userContext.getStartedBooks()}
 				categoryName="Currently reading"
-			/>
-		{/if}
-		{#if userContext.getHighestRatedBooks().length}
-			<BookCategory
-				booksToDisplay={userContext.getHighestRatedBooks()}
-				categoryName="Your favorite books"
 			/>
 		{/if}
 		<BookCategory
@@ -189,6 +194,25 @@
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	/* Activity + goals two-column layout */
+	.activity-row {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
+
+	@media (min-width: 900px) {
+		.activity-row {
+			grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+			align-items: start;
+		}
+	}
+
+	.activity-col,
+	.goals-col {
+		min-width: 0;
 	}
 
 	/* Empty state */
