@@ -23,7 +23,8 @@
 	let isSearching = $state(false);
 	let searchError = $state('');
 	let isAdding = $state(false);
-	let addedBookId = $state<string | null>(null);
+	let addingKey = $state<string | null>(null); // currently in-flight
+	let addedKeys = $state(new Set<string>()); // successfully added
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
 	async function search(value: string) {
@@ -50,8 +51,10 @@
 	}
 
 	async function addBook(book: OpenLibraryBook) {
+		if (addedKeys.has(book.key) || isAdding) return;
+
 		isAdding = true;
-		addedBookId = book.key;
+		addingKey = book.key;
 
 		const scannedBook: ScannedBook = {
 			bookTitle: book.title,
@@ -64,9 +67,10 @@
 
 		try {
 			await userContext.addBooksToLibrary([scannedBook]);
+			addedKeys = new Set([...addedKeys, book.key]);
 		} finally {
 			isAdding = false;
-			addedBookId = null;
+			addingKey = null;
 		}
 	}
 
@@ -79,6 +83,7 @@
 			query = '';
 			results = [];
 			searchError = '';
+			addedKeys = new Set();
 		}
 	});
 </script>
@@ -149,7 +154,6 @@
 				<ul class="results">
 					{#each results as book (book.key)}
 						{@const cover = getCoverUrl(book)}
-						{@const isThisAdding = isAdding && addedBookId === book.key}
 						<li class="result-item">
 							<div class="result-cover">
 								{#if cover}
@@ -180,14 +184,27 @@
 									<p class="result-year">{book.first_publish_year}</p>
 								{/if}
 							</div>
+							{@const isAdded = addedKeys.has(book.key)}
 							<button
 								class="add-btn"
+								class:added={isAdded}
 								onclick={() => addBook(book)}
-								disabled={isAdding}
-								aria-label="Add {book.title}"
+								disabled={isAdded || isAdding}
+								aria-label={isAdded ? 'Added' : 'Add {book.title}'}
 							>
-								{#if isThisAdding}
+								{#if addingKey === book.key}
 									<div class="add-spinner"></div>
+								{:else if isAdded}
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+									>
+										<polyline points="20 6 9 17 4 12" />
+									</svg>
 								{:else}
 									<svg
 										width="16"
@@ -487,8 +504,11 @@
 		transform: scale(1.08);
 	}
 	.add-btn:disabled {
-		opacity: 0.5;
 		cursor: not-allowed;
+	}
+	.add-btn.added {
+		background: var(--success, #2d6a4f);
+		opacity: 1;
 	}
 
 	.empty-prompt,
