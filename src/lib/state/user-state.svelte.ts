@@ -86,6 +86,16 @@ export class UserState {
 			.slice(0, 9);
 	}
 
+	getStartedBooks() {
+		return this.allBooks
+			.filter((book) => book.started_reading_on && !book.finished_reading_on)
+			.toSorted((a, b) => Date.parse(b.started_reading_on!) - Date.parse(a.started_reading_on!));
+	}
+
+	getAllBooksSorted() {
+		return this.allBooks.toSorted((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+	}
+
 	getFavoriteGenre() {
 		if (this.allBooks.filter((book) => book.genre).length === 0) {
 			return '';
