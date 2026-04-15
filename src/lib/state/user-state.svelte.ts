@@ -24,6 +24,14 @@ export interface Book {
 	user_id: string;
 }
 
+export interface ReadingLog {
+	id: number;
+	user_id: string;
+	date: string; // 'YYYY-MM-DD'
+	minutes_read: number;
+	created_at: string;
+}
+
 export interface ScannedBook {
 	bookTitle: string;
 	author: string;
@@ -40,6 +48,7 @@ export class UserState {
 	user = $state<User | null>(null);
 	userName = $state<string | null>(null);
 	allBooks = $state<Book[]>([]);
+	readingLogs = $state<ReadingLog[]>([]);
 
 	constructor(data: UserStateData) {
 		this.updateState(data);
@@ -59,9 +68,14 @@ export class UserState {
 
 		const userId = this.user.id;
 
-		const [booksResponse, userNameResponse] = await Promise.all([
+		const [booksResponse, userNameResponse, logsResponse] = await Promise.all([
 			await this.supabase.from('books').select('*').eq('user_id', userId),
-			await this.supabase.from('user_names').select('name').eq('user_id', userId).single()
+			await this.supabase.from('user_names').select('name').eq('user_id', userId).single(),
+			await this.supabase
+				.from('reading_logs')
+				.select('*')
+				.eq('user_id', userId)
+				.order('date', { ascending: false })
 		]);
 
 		if (
@@ -74,8 +88,82 @@ export class UserState {
 			return;
 		}
 
+		if (!logsResponse.error && logsResponse.data) {
+			this.readingLogs = logsResponse.data;
+		}
+
 		this.allBooks = booksResponse.data;
 		this.userName = userNameResponse.data.name;
+	}
+
+	async logReadingSession(date: string, minutes: number) {
+		if (!this.supabase || !this.user) {
+			return;
+		}
+
+		const { data, error } = await this.supabase
+			.from('reading_logs')
+			.upsert(
+				{ user_id: this.user.id, date, minutes_read: minutes },
+				{ onConflict: 'user_id,date' }
+			)
+			.select()
+			.single();
+
+		if (!error && data) {
+			const idx = this.readingLogs.findIndex((l) => l.date === date);
+			if (idx !== -1) {
+				this.readingLogs[idx] = data;
+			} else {
+				this.readingLogs = [data, ...this.readingLogs];
+			}
+			addToast(
+				`${minutes} min logged for ${new Date(date + 'T00:00:00').toLocaleDateString('en-IE', { day: 'numeric', month: 'short' })}`
+			);
+		} else if (error) {
+			addToast('Failed to log reading session', 'error');
+		}
+	}
+
+	getLogForDate(date: string): ReadingLog | undefined {
+		return this.readingLogs.find((l) => l.date === date);
+	}
+
+	getCurrentStreak(): number {
+		if (!this.readingLogs.length) return 0;
+		const dates = new Set(this.readingLogs.map((l) => l.date));
+		let streak = 0;
+		const today = new Date();
+		for (let i = 0; i < 365; i++) {
+			const d = new Date(today);
+			d.setDate(d.getDate() - i);
+			const key = d.toISOString().split('T')[0];
+			if (dates.has(key)) {
+				streak++;
+			} else if (i > 0) {
+				break;
+			}
+		}
+		return streak;
+	}
+
+	getLongestStreak(): number {
+		if (!this.readingLogs.length) return 0;
+		const dates = [...new Set(this.readingLogs.map((l) => l.date))].sort();
+		let longest = 1;
+		let current = 1;
+		for (let i = 1; i < dates.length; i++) {
+			const prev = new Date(dates[i - 1]);
+			const curr = new Date(dates[i]);
+			const diff = (curr.getTime() - prev.getTime()) / 86400000;
+			if (diff === 1) {
+				current++;
+				longest = Math.max(longest, current);
+			} else {
+				current = 1;
+			}
+		}
+		return longest;
 	}
 
 	getHighestRatedBooks() {
