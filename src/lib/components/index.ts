@@ -1,4 +1,3 @@
-// place files you want to import through the `$lib` alias in this folder.
 export { default as AuthForm } from './AuthForm.svelte';
 export { default as AddBookModal } from './AddBookModal.svelte';
 export { default as HeroSection } from './HeroSection.svelte';
@@ -8,3 +7,4 @@ export { default as BookCategory } from './BookCategory.svelte';
 export { default as StarRating } from './StarRating.svelte';
 export { default as Header } from './Layout/Header.svelte';
 export { default as SideNavigation } from './Layout/SideNavigation.svelte';
+export { default as Toast } from './Toast.svelte';
