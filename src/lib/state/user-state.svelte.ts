@@ -35,6 +35,7 @@ export interface ReadingLog {
 export interface ReadingGoals {
 	booksPerYear: number;
 	minutesPerWeek: number;
+	streakGoal: number;
 }
 
 export interface ScannedBook {
@@ -54,7 +55,11 @@ export class UserState {
 	userName = $state<string | null>(null);
 	allBooks = $state<Book[]>([]);
 	readingLogs = $state<ReadingLog[]>([]);
-	readingGoals = $state<ReadingGoals>({ booksPerYear: 12, minutesPerWeek: 60 });
+	readingGoals = $state<ReadingGoals>({
+		booksPerYear: 12,
+		minutesPerWeek: 60,
+		streakGoal: 7
+	});
 
 	constructor(data: UserStateData) {
 		this.updateState(data);
