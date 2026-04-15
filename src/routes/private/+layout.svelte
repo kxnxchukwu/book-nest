@@ -1,5 +1,5 @@
-<script lang="ts">
-	import { SideNavigation } from '$components/index.svelte';
+<script>
+	import { SideNavigation } from '$components';
 	let { children } = $props();
 </script>
 
@@ -20,8 +20,16 @@
 		flex: 1;
 		min-width: 0;
 		padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 48px);
-		/* Extra bottom padding for mobile bottom nav */
 		padding-bottom: calc(clamp(24px, 4vw, 48px) + env(safe-area-inset-bottom));
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	/* Constrain all direct children to a readable max-width */
+	.main-area > :global(*) {
+		width: 100%;
+		max-width: 1100px;
 	}
 
 	@media (max-width: 767px) {
