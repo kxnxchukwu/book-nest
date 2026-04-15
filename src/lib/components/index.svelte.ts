@@ -6,5 +6,6 @@ export { default as BookCard } from './BookCard.svelte';
 export { default as BookCategory } from './BookCategory.svelte';
 export { default as StarRating } from './StarRating.svelte';
 export { default as Header } from './Layout/Header.svelte';
+export { default as ReadingCalendar } from './ReadingCalendar.svelte';
 export { default as SideNavigation } from './Layout/SideNavigation.svelte';
 export { default as Toast } from './Toast.svelte';
