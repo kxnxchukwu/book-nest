@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Header, Toast } from '$components/index.svelte.js';
+	import { Header, Toast } from '$components/index.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import './../app.css';
 	import { goto, invalidate } from '$app/navigation';
