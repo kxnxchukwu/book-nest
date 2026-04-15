@@ -32,6 +32,11 @@ export interface ReadingLog {
 	created_at: string;
 }
 
+export interface ReadingGoals {
+	booksPerYear: number;
+	minutesPerWeek: number;
+}
+
 export interface ScannedBook {
 	bookTitle: string;
 	author: string;
@@ -49,6 +54,7 @@ export class UserState {
 	userName = $state<string | null>(null);
 	allBooks = $state<Book[]>([]);
 	readingLogs = $state<ReadingLog[]>([]);
+	readingGoals = $state<ReadingGoals>({ booksPerYear: 12, minutesPerWeek: 60 });
 
 	constructor(data: UserStateData) {
 		this.updateState(data);
@@ -352,6 +358,41 @@ export class UserState {
 			}
 		} catch (error) {
 			console.log(`Failed to delete account:`, error);
+		}
+	}
+
+	getBooksFinishedThisYear(): number {
+		const year = new Date().getFullYear().toString();
+		return this.allBooks.filter((b) => b.finished_reading_on?.startsWith(year)).length;
+	}
+
+	getMinutesThisWeek(): number {
+		const now = new Date();
+		const day = now.getDay(); // 0=Sun
+		const start = new Date(now);
+		start.setDate(now.getDate() - day);
+		start.setHours(0, 0, 0, 0);
+		const startStr = start.toISOString().split('T')[0];
+		return this.readingLogs
+			.filter((l) => l.date >= startStr)
+			.reduce((sum, l) => sum + l.minutes_read, 0);
+	}
+
+	saveGoals(goals: ReadingGoals) {
+		this.readingGoals = goals;
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem('reading_goals', JSON.stringify(goals));
+		}
+	}
+
+	loadGoals() {
+		if (typeof localStorage !== 'undefined') {
+			try {
+				const saved = localStorage.getItem('reading_goals');
+				if (saved) this.readingGoals = JSON.parse(saved) as ReadingGoals;
+			} catch {
+				/* ignore */
+			}
 		}
 	}
 
