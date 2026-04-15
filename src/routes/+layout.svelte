@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { Header } from '$components';
+	import { Header, Toast } from '$components';
 	import favicon from '$lib/assets/favicon.svg';
 	import './../app.css';
-	import { invalidate } from '$app/navigation';
-	import { setUserState } from '$lib/state/user-state.svelte.js';
+	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { setUserState } from '$lib/state/user-state.svelte.js';
 
 	let { children, data } = $props();
 	let { session, supabase } = $derived(data);
@@ -42,5 +41,5 @@
 </svelte:head>
 
 <Header />
-
 {@render children()}
+<Toast />
