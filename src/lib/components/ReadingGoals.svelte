@@ -40,7 +40,9 @@
 	let minutesPct = $derived(
 		Math.min(100, Math.round((minutesThisWeek / goals.minutesPerWeek) * 100))
 	);
-	let streakPct = $derived(Math.min(100, Math.round((currentStreak / goals.streakGoal) * 100)));
+	let streakPct = $derived(
+		goals.streakGoal > 0 ? Math.min(100, Math.round((currentStreak / goals.streakGoal) * 100)) : 0
+	);
 
 	let booksOnTrack = $derived(booksThisYear >= goals.booksPerYear);
 	let minutesOnTrack = $derived(minutesThisWeek >= goals.minutesPerWeek);

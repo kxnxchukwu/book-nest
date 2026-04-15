@@ -394,7 +394,15 @@ export class UserState {
 		if (typeof localStorage !== 'undefined') {
 			try {
 				const saved = localStorage.getItem('reading_goals');
-				if (saved) this.readingGoals = JSON.parse(saved) as ReadingGoals;
+				if (saved) {
+					const parsed = JSON.parse(saved) as Partial<ReadingGoals>;
+					// Merge with defaults so new fields added later are always present
+					this.readingGoals = {
+						booksPerYear: parsed.booksPerYear ?? 12,
+						minutesPerWeek: parsed.minutesPerWeek ?? 60,
+						streakGoal: parsed.streakGoal ?? 7
+					};
+				}
 			} catch {
 				/* ignore */
 			}
