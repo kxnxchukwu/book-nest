@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, StarRating } from '$components';
+	import { Button, StarRating } from '$components/index.svelte';
 	import { getUserState, type Book } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 	import Dropzone from 'svelte-file-dropzone';

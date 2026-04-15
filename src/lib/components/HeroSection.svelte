@@ -1,6 +1,6 @@
 <script lang="ts">
 	import heroImage from '$assets/hero.png';
-	import { Button } from '$components';
+	import { Button } from '$components/index.svelte';
 </script>
 
 <section class="hero">

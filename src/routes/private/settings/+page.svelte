@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '$components';
+	import { Button } from '$components/index.svelte';
 	import { getUserState } from '$lib/state/user-state.svelte';
 
 	let userContext = getUserState();

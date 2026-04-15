@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getUserState, type Book } from '$lib/state/user-state.svelte';
-	import { BookCard } from '$components';
+	import { BookCard } from '$components/index.svelte';
 
 	let userContext = getUserState();
 	let allBooks = $derived(userContext.allBooks ?? []);

@@ -1,5 +1,5 @@
 <script src="ts">
-	import { SideNavigation } from '$components';
+	import { SideNavigation } from '$components/index.svelte';
 	let { children } = $props();
 </script>
 

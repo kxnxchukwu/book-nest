@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Dropzone from 'svelte-file-dropzone';
 	import Icon from '@iconify/svelte';
-	import { Button } from '$components';
+	import { Button } from '$components/index.svelte';
 	import { convertFileToBase64 } from '$lib/utils/image-helpers';
 	import { type ScannedBook, getUserState } from '$lib/state/user-state.svelte';
 
