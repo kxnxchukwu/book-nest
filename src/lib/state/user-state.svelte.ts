@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import type { Database } from '$lib/types/database.types';
+import { addToast } from '$lib/utils/toasts';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { getContext, setContext } from 'svelte';
 
@@ -157,14 +158,17 @@ export class UserState {
 		if (status === 204 && !error) {
 			this.allBooks = this.allBooks.map((book) => {
 				if (book.id === bookId) {
-					return {
-						...book,
-						...updateObject
-					};
+					return { ...book, ...updateObject };
 				} else {
 					return book;
 				}
 			});
+			// Only toast for meaningful edits, not silent status/rating updates
+			const silentKeys = ['started_reading_on', 'finished_reading_on', 'rating', 'cover_image'];
+			const isSilent = Object.keys(updateObject).every((k) => silentKeys.includes(k));
+			if (!isSilent) addToast('Changes saved');
+		} else if (error) {
+			addToast('Failed to save changes', 'error');
 		}
 	}
 
@@ -199,9 +203,11 @@ export class UserState {
 		const { error, status } = await this.supabase.from('books').delete().eq('id', bookId);
 		if (!error && status === 204) {
 			this.allBooks = this.allBooks.filter((book) => book.id !== bookId);
+			addToast('Book removed from library');
+			goto('/private/dashboard');
+		} else {
+			addToast('Failed to delete book', 'error');
 		}
-
-		goto('/private/dashboard');
 	}
 
 	async addBooksToLibrary(booksToAdd: ScannedBook[]) {
@@ -222,9 +228,16 @@ export class UserState {
 
 		const { error } = await this.supabase.from('books').insert(processedBooks);
 		if (error) {
+			addToast('Failed to add books', 'error');
 			throw new Error(error.message);
 		} else {
 			await this.fetchUserData();
+			const count = processedBooks.length;
+			addToast(
+				count === 1
+					? `"${processedBooks[0].title}" added to library`
+					: `${count} books added to library`
+			);
 		}
 	}
 
