@@ -1,5 +1,6 @@
 // place files you want to import through the `$lib` alias in this folder.
 export { default as AuthForm } from './AuthForm.svelte';
+export { default as AddBookModal } from './AddBookModal.svelte';
 export { default as HeroSection } from './HeroSection.svelte';
 export { default as Button } from './Button.svelte';
 export { default as BookCard } from './BookCard.svelte';
