@@ -5,7 +5,7 @@
 
 	let userContext = getUserState();
 
-	let userName = $derived(userContext.userName);
+	let userName = $derived(userContext.userName ?? '');
 	let allBooks = $derived(userContext.allBooks ?? []);
 	let modalOpen = $state(false);
 </script>
