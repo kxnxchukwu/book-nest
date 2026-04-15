@@ -154,6 +154,7 @@
 				<ul class="results">
 					{#each results as book (book.key)}
 						{@const cover = getCoverUrl(book)}
+						{@const isAdded = addedKeys.has(book.key)}
 						<li class="result-item">
 							<div class="result-cover">
 								{#if cover}
@@ -184,7 +185,6 @@
 									<p class="result-year">{book.first_publish_year}</p>
 								{/if}
 							</div>
-							{@const isAdded = addedKeys.has(book.key)}
 							<button
 								class="add-btn"
 								class:added={isAdded}
