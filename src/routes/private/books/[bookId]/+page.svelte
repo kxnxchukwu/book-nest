@@ -61,6 +61,20 @@
 				? 'Currently reading'
 				: 'Not started'
 	);
+
+	function formatDate(iso: string | null): string {
+		if (!iso) return '';
+		return new Date(iso).toLocaleDateString('en-IE', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+	}
+
+	function daysBetween(a: string, b: string | null): number {
+		const end = b ? new Date(b) : new Date();
+		return Math.max(1, Math.ceil((end.getTime() - new Date(a).getTime()) / 86400000));
+	}
 </script>
 
 <div class="book-page">
@@ -125,6 +139,56 @@
 						<p class="genre-tag">{book.genre}</p>
 					</div>
 				{/if}
+			{/if}
+
+			<!-- Reading timeline -->
+			{#if book.started_reading_on || book.finished_reading_on}
+				<div class="section">
+					<h5>Reading progress</h5>
+					<div class="timeline">
+						<div class="timeline-step done">
+							<div class="timeline-dot"></div>
+							<div class="timeline-body">
+								<span class="timeline-label">Started reading</span>
+								<span class="timeline-date">{formatDate(book.started_reading_on)}</span>
+							</div>
+						</div>
+						{#if book.finished_reading_on}
+							<div class="timeline-line done"></div>
+							<div class="timeline-step done">
+								<div class="timeline-dot"></div>
+								<div class="timeline-body">
+									<span class="timeline-label">Finished reading</span>
+									<span class="timeline-date">{formatDate(book.finished_reading_on)}</span>
+								</div>
+							</div>
+							<p class="timeline-duration">
+								Read in {daysBetween(book.started_reading_on!, book.finished_reading_on)} day{daysBetween(
+									book.started_reading_on!,
+									book.finished_reading_on
+								) !== 1
+									? 's'
+									: ''}
+							</p>
+						{:else}
+							<div class="timeline-line active"></div>
+							<div class="timeline-step active">
+								<div class="timeline-dot"></div>
+								<div class="timeline-body">
+									<span class="timeline-label">Currently reading</span>
+									<span class="timeline-date"
+										>{daysBetween(book.started_reading_on!, null)} day{daysBetween(
+											book.started_reading_on!,
+											null
+										) !== 1
+											? 's'
+											: ''} so far</span
+									>
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
 			{/if}
 
 			{#if !book.finished_reading_on}
@@ -343,5 +407,78 @@
 			width: min(240px, 70vw);
 			margin: 0 auto;
 		}
+	}
+
+	/* Reading timeline */
+	.timeline {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		padding-left: 4px;
+	}
+
+	.timeline-step {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.timeline-dot {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		border: 2px solid var(--border-strong);
+		background: var(--bg-card);
+		flex-shrink: 0;
+		margin-top: 3px;
+		transition:
+			border-color 160ms ease,
+			background 160ms ease;
+	}
+
+	.timeline-step.done .timeline-dot {
+		border-color: var(--accent);
+		background: var(--accent);
+	}
+	.timeline-step.active .timeline-dot {
+		border-color: var(--accent);
+		background: var(--bg-card);
+	}
+
+	.timeline-line {
+		width: 2px;
+		height: 24px;
+		background: var(--border);
+		margin-left: 5px;
+	}
+	.timeline-line.done {
+		background: var(--accent);
+	}
+	.timeline-line.active {
+		background: linear-gradient(to bottom, var(--accent), var(--border));
+	}
+
+	.timeline-body {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		padding-bottom: 4px;
+	}
+	.timeline-label {
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: var(--text);
+	}
+	.timeline-date {
+		font-size: 0.78rem;
+		color: var(--text-muted);
+	}
+
+	.timeline-duration {
+		font-size: 0.78rem;
+		color: var(--accent-mid);
+		font-weight: 500;
+		margin-top: 8px;
+		padding-left: 24px;
 	}
 </style>
