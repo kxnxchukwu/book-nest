@@ -26,7 +26,12 @@ export interface Book {
 export interface ScannedBook {
 	bookTitle: string;
 	author: string;
+	genre?: string;
+	description?: string;
+	isbn?: string;
+	cover_image?: string;
 }
+
 type UpdatableBookFields = Omit<Book, 'id' | 'user_id' | 'created_at'>;
 export class UserState {
 	session = $state<Session | null>(null);
@@ -209,7 +214,10 @@ export class UserState {
 		const processedBooks = booksToAdd.map((book) => ({
 			title: book.bookTitle,
 			author: book.author,
-			user_id: userId
+			user_id: userId,
+			...(book.genre ? { genre: book.genre } : {}),
+			...(book.description ? { description: book.description } : {}),
+			...(book.cover_image ? { cover_image: book.cover_image } : {})
 		}));
 
 		const { error } = await this.supabase.from('books').insert(processedBooks);
