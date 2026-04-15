@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BookCategory, AddBookModal, ReadingCalendar } from '$components';
+	import { BookCategory, AddBookModal, ReadingCalendar } from '$components/index.svelte';
 	import { getUserState } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 
