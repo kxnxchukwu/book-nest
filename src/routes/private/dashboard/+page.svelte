@@ -7,7 +7,7 @@
 
 	// Access reactive class properties directly — never destructure
 	let userName = $derived(userContext.userName);
-	let allBooks = $derived(userContext.allBooks);
+	let allBooks = $derived(userContext.allBooks ?? []);
 </script>
 
 <div class="dashboard">
@@ -49,6 +49,12 @@
 
 	<!-- Book categories -->
 	{#if allBooks.length}
+		{#if userContext.getStartedBooks().length}
+			<BookCategory
+				booksToDisplay={userContext.getStartedBooks()}
+				categoryName="Currently reading"
+			/>
+		{/if}
 		{#if userContext.getHighestRatedBooks().length}
 			<BookCategory
 				booksToDisplay={userContext.getHighestRatedBooks()}
@@ -65,6 +71,7 @@
 				categoryName={`From your favorite genre · ${userContext.getFavoriteGenre()}`}
 			/>
 		{/if}
+		<BookCategory booksToDisplay={userContext.getAllBooksSorted()} categoryName="All books" />
 	{:else}
 		<div class="empty-state">
 			<div class="empty-icon">
