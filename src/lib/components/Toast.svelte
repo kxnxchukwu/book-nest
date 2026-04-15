@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { toasts, removeToast } from '$lib/utils/toasts';
+	import { toasts, removeToast } from '$lib/utils/toasts.svelte';
 </script>
 
 <div class="toast-container">

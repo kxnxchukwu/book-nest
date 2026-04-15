@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import type { Database } from '$lib/types/database.types';
-import { addToast } from '$lib/utils/toasts';
+import { addToast } from '$lib/utils/toasts.svelte';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
 import { getContext, setContext } from 'svelte';
 
