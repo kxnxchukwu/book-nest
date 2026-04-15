@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { BookCategory } from '$components';
+	import { BookCategory, AddBookModal } from '$components';
 	import { getUserState } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 
 	let userContext = getUserState();
 
-	// Access reactive class properties directly — never destructure
 	let userName = $derived(userContext.userName);
 	let allBooks = $derived(userContext.allBooks ?? []);
+	let modalOpen = $state(false);
 </script>
 
 <div class="dashboard">
@@ -21,10 +21,10 @@
 				<h2>Welcome back</h2>
 			{/if}
 		</div>
-		<a href="/private/scan-shelf" class="add-book-btn">
+		<button class="add-book-btn" onclick={() => (modalOpen = true)}>
 			<Icon icon="icons8:plus" width="18" />
 			<span>Add a book</span>
-		</a>
+		</button>
 	</div>
 
 	<!-- Stats row -->
@@ -97,6 +97,8 @@
 		</div>
 	{/if}
 </div>
+
+<AddBookModal open={modalOpen} onclose={() => (modalOpen = false)} />
 
 <style>
 	.dashboard {
