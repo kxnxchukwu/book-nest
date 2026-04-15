@@ -9,10 +9,12 @@
 	type StatusFilter = 'all' | 'reading' | 'unread' | 'finished';
 	type SortOption = 'added' | 'title' | 'author' | 'rating';
 
+	type ViewMode = 'grid' | 'list';
 	let statusFilter = $state<StatusFilter>('all');
 	let genreFilter = $state('all');
 	let sortBy = $state<SortOption>('added');
 	let searchQuery = $state('');
+	let viewMode = $state<ViewMode>('grid');
 
 	// Derive unique genres from library
 	let genres = $derived([
@@ -81,7 +83,57 @@
 			<h5>Your collection</h5>
 			<h2>Library</h2>
 		</div>
-		<span class="book-count">{filtered.length} book{filtered.length !== 1 ? 's' : ''}</span>
+		<div class="header-right">
+			<span class="book-count">{filtered.length} book{filtered.length !== 1 ? 's' : ''}</span>
+			<div class="view-toggle" role="group" aria-label="View mode">
+				<button
+					class="view-btn"
+					class:active={viewMode === 'grid'}
+					onclick={() => (viewMode = 'grid')}
+					aria-label="Grid view"
+				>
+					<svg
+						width="15"
+						height="15"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+						<rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+					</svg>
+				</button>
+				<button
+					class="view-btn"
+					class:active={viewMode === 'list'}
+					onclick={() => (viewMode = 'list')}
+					aria-label="List view"
+				>
+					<svg
+						width="15"
+						height="15"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line
+							x1="8"
+							y1="18"
+							x2="21"
+							y2="18"
+						/>
+						<line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line
+							x1="3"
+							y1="18"
+							x2="3.01"
+							y2="18"
+						/>
+					</svg>
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<!-- Search + filters -->
@@ -148,11 +200,72 @@
 
 	<!-- Grid -->
 	{#if filtered.length > 0}
-		<div class="book-grid">
-			{#each filtered as book (book.id)}
-				<BookCard {book} />
-			{/each}
-		</div>
+		{#if viewMode === 'grid'}
+			<div class="book-grid">
+				{#each filtered as book (book.id)}
+					<BookCard {book} />
+				{/each}
+			</div>
+		{:else}
+			<div class="book-list-view">
+				<div class="list-header">
+					<span class="col-cover"></span>
+					<button
+						class="col-title sortable"
+						onclick={() => (sortBy = 'title')}
+						class:sorted={sortBy === 'title'}>Title</button
+					>
+					<button
+						class="col-author sortable"
+						onclick={() => (sortBy = 'author')}
+						class:sorted={sortBy === 'author'}>Author</button
+					>
+					<span class="col-genre">Genre</span>
+					<button
+						class="col-rating sortable"
+						onclick={() => (sortBy = 'rating')}
+						class:sorted={sortBy === 'rating'}>Rating</button
+					>
+					<span class="col-status">Status</span>
+				</div>
+				{#each filtered as book (book.id)}
+					<a href="/private/books/{book.id}" class="list-row">
+						<span class="col-cover">
+							{#if book.cover_image}
+								<img src={book.cover_image} alt="" class="list-cover" />
+							{:else}
+								<div class="list-cover-placeholder"></div>
+							{/if}
+						</span>
+						<span class="col-title list-title">{book.title}</span>
+						<span class="col-author list-author">{book.author ?? '—'}</span>
+						<span class="col-genre list-genre">{book.genre ?? '—'}</span>
+						<span class="col-rating list-rating">
+							{#if book.rating}
+								{'★'.repeat(book.rating)}{'☆'.repeat(5 - book.rating)}
+							{:else}
+								<span class="no-rating">—</span>
+							{/if}
+						</span>
+						<span class="col-status">
+							<span
+								class="status-pill status-{book.finished_reading_on
+									? 'done'
+									: book.started_reading_on
+										? 'reading'
+										: 'unread'}"
+							>
+								{book.finished_reading_on
+									? 'Finished'
+									: book.started_reading_on
+										? 'Reading'
+										: 'Unread'}
+							</span>
+						</span>
+					</a>
+				{/each}
+			</div>
+		{/if}
 	{:else if allBooks.length === 0}
 		<div class="empty-state">
 			<svg
@@ -366,5 +479,199 @@
 	.empty-state p {
 		font-size: 0.9rem;
 		max-width: 260px;
+	}
+
+	/* Header right */
+	.header-right {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	/* View toggle */
+	.view-toggle {
+		display: flex;
+		border: 1.5px solid var(--border);
+		border-radius: var(--r-md);
+		overflow: hidden;
+	}
+
+	.view-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		color: var(--text-muted);
+		background: transparent;
+		transition:
+			background 140ms ease,
+			color 140ms ease;
+		cursor: pointer;
+	}
+	.view-btn:hover {
+		background: var(--bg-muted);
+		color: var(--text);
+	}
+	.view-btn.active {
+		background: var(--accent);
+		color: var(--text-inv);
+	}
+
+	/* List view */
+	.book-list-view {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg);
+		overflow: hidden;
+		background: var(--bg-card);
+	}
+
+	.list-header,
+	.list-row {
+		display: grid;
+		grid-template-columns: 44px 1fr 1fr 120px 90px 90px;
+		align-items: center;
+		gap: 0;
+	}
+
+	@media (max-width: 768px) {
+		.list-header,
+		.list-row {
+			grid-template-columns: 44px 1fr 80px 70px;
+		}
+		.col-author,
+		.col-genre {
+			display: none;
+		}
+	}
+
+	.list-header {
+		padding: 8px 12px;
+		background: var(--bg-muted);
+		border-bottom: 1px solid var(--border);
+	}
+
+	.list-header span,
+	.list-header button {
+		font-size: 0.72rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--text-muted);
+		text-align: left;
+		background: none;
+		border: none;
+		cursor: default;
+		padding: 4px 8px;
+	}
+
+	.list-header .sortable {
+		cursor: pointer;
+		transition: color 140ms ease;
+	}
+	.list-header .sortable:hover {
+		color: var(--text);
+	}
+	.list-header .sortable.sorted {
+		color: var(--accent);
+	}
+
+	.list-row {
+		padding: 8px 12px;
+		border-bottom: 1px solid var(--border);
+		text-decoration: none;
+		transition: background 140ms ease;
+	}
+	.list-row:last-child {
+		border-bottom: none;
+	}
+	.list-row:hover {
+		background: var(--bg-muted);
+	}
+
+	.col-cover {
+		padding: 4px 8px 4px 0;
+	}
+
+	.list-cover {
+		width: 28px;
+		height: 40px;
+		object-fit: cover;
+		border-radius: 2px;
+		display: block;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.list-cover-placeholder {
+		width: 28px;
+		height: 40px;
+		border-radius: 2px;
+		background: var(--bg-muted);
+	}
+
+	.list-title {
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--text);
+		padding: 0 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.list-author {
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		font-style: italic;
+		padding: 0 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.list-genre {
+		font-size: 0.78rem;
+		color: var(--text-muted);
+		padding: 0 8px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.list-rating {
+		font-size: 0.75rem;
+		letter-spacing: -1px;
+		color: #d4a240;
+		padding: 0 8px;
+	}
+
+	.no-rating {
+		color: var(--text-muted);
+		letter-spacing: 0;
+	}
+
+	.status-pill {
+		display: inline-block;
+		font-size: 0.68rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 2px 8px;
+		border-radius: 99px;
+	}
+
+	.status-done {
+		background: rgba(45, 106, 79, 0.12);
+		color: #2d6a4f;
+	}
+	.status-reading {
+		background: var(--accent-glow);
+		color: var(--accent);
+	}
+	.status-unread {
+		background: var(--bg-muted);
+		color: var(--text-muted);
 	}
 </style>
