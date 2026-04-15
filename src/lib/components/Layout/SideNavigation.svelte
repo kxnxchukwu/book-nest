@@ -1,25 +1,57 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
+
+	let currentPath = $derived($page.url.pathname);
+
+	function isActive(href: string) {
+		return currentPath === href || (href !== '/private/dashboard' && currentPath.startsWith(href));
+	}
 </script>
 
 <!-- Desktop sidebar -->
 <nav class="side-nav">
 	<ul>
 		<li>
-			<a href="/private/dashboard" class="nav-link" aria-label="Library">
+			<a
+				href="/private/dashboard"
+				class="nav-link"
+				class:active={isActive('/private/dashboard')}
+				aria-label="Dashboard"
+			>
+				<Icon icon="solar:home-2-outline" width="22" />
+				<span class="nav-label">Dashboard</span>
+			</a>
+		</li>
+		<li>
+			<a
+				href="/private/library"
+				class="nav-link"
+				class:active={isActive('/private/library')}
+				aria-label="Library"
+			>
 				<Icon icon="ion:library-outline" width="22" />
 				<span class="nav-label">Library</span>
 			</a>
 		</li>
 		<li>
-			<a href="/private/scan-shelf" class="nav-link" aria-label="Scan">
+			<a
+				href="/private/scan-shelf"
+				class="nav-link"
+				class:active={isActive('/private/scan-shelf')}
+				aria-label="Scan"
+			>
 				<Icon icon="solar:eye-scan-linear" width="22" />
 				<span class="nav-label">Scan</span>
 			</a>
 		</li>
 		<li>
-			<a href="/private/settings" class="nav-link" aria-label="Settings">
+			<a
+				href="/private/settings"
+				class="nav-link"
+				class:active={isActive('/private/settings')}
+				aria-label="Settings"
+			>
 				<Icon icon="ion:settings-outline" width="22" />
 				<span class="nav-label">Settings</span>
 			</a>
@@ -29,16 +61,40 @@
 
 <!-- Mobile bottom bar -->
 <nav class="bottom-nav" aria-label="Main navigation">
-	<a href="/private/dashboard" class="bottom-link" aria-label="Library">
-		<Icon icon="ion:library-outline" width="24" />
+	<a
+		href="/private/dashboard"
+		class="bottom-link"
+		class:active={isActive('/private/dashboard')}
+		aria-label="Dashboard"
+	>
+		<Icon icon="solar:home-2-outline" width="22" />
+		<span>Home</span>
+	</a>
+	<a
+		href="/private/library"
+		class="bottom-link"
+		class:active={isActive('/private/library')}
+		aria-label="Library"
+	>
+		<Icon icon="ion:library-outline" width="22" />
 		<span>Library</span>
 	</a>
-	<a href="/private/scan-shelf" class="bottom-link" aria-label="Scan">
-		<Icon icon="solar:eye-scan-linear" width="24" />
+	<a
+		href="/private/scan-shelf"
+		class="bottom-link"
+		class:active={isActive('/private/scan-shelf')}
+		aria-label="Scan"
+	>
+		<Icon icon="solar:eye-scan-linear" width="22" />
 		<span>Scan</span>
 	</a>
-	<a href="/private/settings" class="bottom-link" aria-label="Settings">
-		<Icon icon="ion:settings-outline" width="24" />
+	<a
+		href="/private/settings"
+		class="bottom-link"
+		class:active={isActive('/private/settings')}
+		aria-label="Settings"
+	>
+		<Icon icon="ion:settings-outline" width="22" />
 		<span>Settings</span>
 	</a>
 </nav>
@@ -98,6 +154,10 @@
 		background: var(--bg-muted);
 		color: var(--text);
 	}
+	.nav-link.active {
+		background: var(--accent-glow);
+		color: var(--accent);
+	}
 
 	.nav-label {
 		display: none;
@@ -138,9 +198,9 @@
 		align-items: center;
 		gap: 2px;
 		color: var(--text-muted);
-		font-size: 0.68rem;
+		font-size: 0.65rem;
 		font-weight: 500;
-		padding: 6px 16px;
+		padding: 6px 12px;
 		border-radius: var(--r-md, 10px);
 		transition: color 160ms ease;
 		text-decoration: none;
@@ -148,5 +208,8 @@
 
 	.bottom-link:hover {
 		color: var(--text);
+	}
+	.bottom-link.active {
+		color: var(--accent);
 	}
 </style>
