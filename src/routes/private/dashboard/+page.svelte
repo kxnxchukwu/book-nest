@@ -71,7 +71,9 @@
 				categoryName={`From your favorite genre · ${userContext.getFavoriteGenre()}`}
 			/>
 		{/if}
-		<BookCategory booksToDisplay={userContext.getAllBooksSorted()} categoryName="All books" />
+		<a href="/private/library" class="view-all-link">
+			View all {allBooks.length} books →
+		</a>
 	{:else}
 		<div class="empty-state">
 			<div class="empty-icon">
@@ -227,5 +229,21 @@
 
 	.empty-cta:hover {
 		filter: brightness(1.1);
+	}
+	.view-all-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--accent);
+		text-decoration: none;
+		margin-top: 8px;
+		padding: 6px 0;
+		border-bottom: 1px solid transparent;
+		transition: border-color 160ms ease;
+	}
+	.view-all-link:hover {
+		border-bottom-color: var(--accent);
 	}
 </style>
