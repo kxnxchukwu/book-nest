@@ -10,11 +10,32 @@
 	type SortOption = 'added' | 'title' | 'author' | 'rating';
 
 	type ViewMode = 'grid' | 'list';
+	type SortDir = 'asc' | 'desc';
+
 	let statusFilter = $state<StatusFilter>('all');
 	let genreFilter = $state('all');
 	let sortBy = $state<SortOption>('added');
+	let sortDir = $state<SortDir>('desc'); // desc = newest/highest first by default
 	let searchQuery = $state('');
 	let viewMode = $state<ViewMode>('grid');
+
+	// Default directions per sort type
+	const defaultDir: Record<SortOption, SortDir> = {
+		added: 'desc',
+		title: 'asc',
+		author: 'asc',
+		rating: 'desc'
+	};
+
+	function setSort(val: SortOption) {
+		if (sortBy === val) {
+			// Toggle direction on repeat click
+			sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+		} else {
+			sortBy = val;
+			sortDir = defaultDir[val];
+		}
+	}
 
 	// Derive unique genres from library
 	let genres = $derived([
@@ -53,11 +74,13 @@
 		}
 
 		// Sort
-		if (sortBy === 'title') books.sort((a, b) => a.title.localeCompare(b.title));
-		if (sortBy === 'author') books.sort((a, b) => (a.author ?? '').localeCompare(b.author ?? ''));
-		if (sortBy === 'rating') books.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+		const dir = sortDir === 'asc' ? 1 : -1;
+		if (sortBy === 'title') books.sort((a, b) => a.title.localeCompare(b.title) * dir);
+		if (sortBy === 'author')
+			books.sort((a, b) => (a.author ?? '').localeCompare(b.author ?? '') * dir);
+		if (sortBy === 'rating') books.sort((a, b) => ((a.rating ?? 0) - (b.rating ?? 0)) * dir);
 		if (sortBy === 'added')
-			books.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+			books.sort((a, b) => (Date.parse(a.created_at) - Date.parse(b.created_at)) * dir);
 
 		return books;
 	});
@@ -66,6 +89,7 @@
 		statusFilter = 'all';
 		genreFilter = 'all';
 		sortBy = 'added';
+		sortDir = 'desc';
 		searchQuery = '';
 	}
 
@@ -73,8 +97,24 @@
 		statusFilter !== 'all' ||
 			genreFilter !== 'all' ||
 			sortBy !== 'added' ||
+			sortDir !== 'desc' ||
 			searchQuery.trim() !== ''
 	);
+
+	// Arrow indicator for current sort
+	const sortLabels: Record<SortOption, [string, string]> = {
+		added: ['Recent', 'Oldest'],
+		title: ['A → Z', 'Z → A'],
+		author: ['A → Z', 'Z → A'],
+		rating: ['Highest', 'Lowest']
+	};
+
+	function getSortLabel(val: SortOption): string {
+		const [asc, desc] = sortLabels[val];
+		if (sortBy !== val)
+			return val === 'added' ? 'Recent' : val.charAt(0).toUpperCase() + val.slice(1);
+		return sortDir === 'asc' ? asc : desc;
+	}
 </script>
 
 <div class="library-page">
@@ -159,8 +199,9 @@
 			/>
 		</div>
 
-		<div class="filter-row">
-			<!-- Status pills -->
+		<!-- Status -->
+		<div class="filter-group">
+			<span class="filter-label">Status</span>
 			<div class="pill-group" role="group" aria-label="Filter by status">
 				{#each ['all', 'reading', 'unread', 'finished'] as StatusFilter[] as status}
 					<button
@@ -172,24 +213,39 @@
 					</button>
 				{/each}
 			</div>
+		</div>
 
-			<div class="selects">
-				<!-- Genre -->
-				{#if genres.length > 2}
-					<select bind:value={genreFilter} aria-label="Filter by genre">
-						{#each genres as genre}
-							<option value={genre}>{genre === 'all' ? 'All genres' : genre}</option>
-						{/each}
-					</select>
-				{/if}
-
-				<!-- Sort -->
-				<select bind:value={sortBy} aria-label="Sort books">
-					<option value="added">Date added</option>
-					<option value="title">Title A–Z</option>
-					<option value="author">Author A–Z</option>
-					<option value="rating">Top rated</option>
+		<!-- Genre -->
+		{#if genres.length > 2}
+			<div class="filter-group">
+				<label class="filter-label" for="genre-filter">Genre</label>
+				<select id="genre-filter" bind:value={genreFilter} class="filter-select">
+					{#each genres as genre}
+						<option value={genre}>{genre === 'all' ? 'All genres' : genre}</option>
+					{/each}
 				</select>
+			</div>
+		{/if}
+
+		<!-- Sort -->
+		<div class="filter-group">
+			<span class="filter-label">Sort</span>
+			<div class="pill-group" role="group" aria-label="Sort books">
+				{#each ['added', 'title', 'author', 'rating'] as SortOption[] as val}
+					<button
+						class="pill"
+						class:active={sortBy === val}
+						onclick={() => setSort(val)}
+						aria-label="Sort by {val}{sortBy === val
+							? ', currently ' + (sortDir === 'asc' ? 'ascending' : 'descending')
+							: ''}"
+					>
+						{getSortLabel(val)}
+						{#if sortBy === val}
+							<span class="sort-arrow">{sortDir === 'asc' ? '↑' : '↓'}</span>
+						{/if}
+					</button>
+				{/each}
 			</div>
 		</div>
 
@@ -212,20 +268,32 @@
 					<span class="col-cover"></span>
 					<button
 						class="col-title sortable"
-						onclick={() => (sortBy = 'title')}
-						class:sorted={sortBy === 'title'}>Title</button
+						onclick={() => setSort('title')}
+						class:sorted={sortBy === 'title'}
 					>
+						Title {#if sortBy === 'title'}<span class="sort-arrow"
+								>{sortDir === 'asc' ? '↑' : '↓'}</span
+							>{/if}
+					</button>
 					<button
 						class="col-author sortable"
-						onclick={() => (sortBy = 'author')}
-						class:sorted={sortBy === 'author'}>Author</button
+						onclick={() => setSort('author')}
+						class:sorted={sortBy === 'author'}
 					>
+						Author {#if sortBy === 'author'}<span class="sort-arrow"
+								>{sortDir === 'asc' ? '↑' : '↓'}</span
+							>{/if}
+					</button>
 					<span class="col-genre">Genre</span>
 					<button
 						class="col-rating sortable"
-						onclick={() => (sortBy = 'rating')}
-						class:sorted={sortBy === 'rating'}>Rating</button
+						onclick={() => setSort('rating')}
+						class:sorted={sortBy === 'rating'}
 					>
+						Rating {#if sortBy === 'rating'}<span class="sort-arrow"
+								>{sortDir === 'asc' ? '↑' : '↓'}</span
+							>{/if}
+					</button>
 					<span class="col-status">Status</span>
 				</div>
 				{#each filtered as book (book.id)}
@@ -359,14 +427,21 @@
 		min-height: unset;
 	}
 
-	.filter-row {
+	.filter-group {
 		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 10px;
+		flex-direction: column;
+		gap: 8px;
 	}
 
-	/* Status pills */
+	.filter-label {
+		font-size: 0.72rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.07em;
+		color: var(--text-muted);
+	}
+
+	/* Pills */
 	.pill-group {
 		display: flex;
 		gap: 6px;
@@ -397,42 +472,38 @@
 		color: var(--text-inv);
 	}
 
-	/* Selects */
-	.selects {
-		display: flex;
-		gap: 8px;
-		flex-wrap: wrap;
-	}
-
-	select {
+	.filter-select {
 		font-family: 'DM Sans', sans-serif;
-		font-size: 0.8rem;
+		font-size: 0.85rem;
 		font-weight: 500;
-		padding: 5px 28px 5px 10px;
-		border-radius: 99px;
+		padding: 6px 32px 6px 12px;
+		border-radius: var(--r-md);
 		border: 1.5px solid var(--border);
-		background: transparent;
-		color: var(--text-muted);
+		background: var(--bg-card);
+		color: var(--text);
 		cursor: pointer;
 		appearance: none;
 		background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6560' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 		background-repeat: no-repeat;
 		background-position: right 10px center;
-		transition:
-			border-color 140ms ease,
-			color 140ms ease;
-		height: 32px;
 		min-height: unset;
+		height: 36px;
+		width: fit-content;
+		min-width: 140px;
+		transition: border-color 160ms ease;
+	}
+	.filter-select:hover {
+		border-color: var(--border-strong);
+	}
+	.filter-select:focus {
+		border-color: var(--accent);
+		box-shadow: 0 0 0 3px var(--accent-glow);
 	}
 
-	select:hover {
-		border-color: var(--border-strong);
-		color: var(--text);
-	}
-	select:focus {
-		border-color: var(--accent);
-		outline: none;
-		box-shadow: 0 0 0 3px var(--accent-glow);
+	.sort-arrow {
+		font-size: 0.7rem;
+		margin-left: 2px;
+		opacity: 0.8;
 	}
 
 	/* Clear */
