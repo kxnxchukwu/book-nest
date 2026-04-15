@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Book } from '$lib/state/user-state.svelte';
-	import { StarRating } from '$components';
+	import { StarRating } from '$components/index.svelte';
 
 	interface BookCardProps {
 		book: Book;

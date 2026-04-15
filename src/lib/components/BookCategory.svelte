@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BookCard } from '$components';
+	import { BookCard } from '$components/index.svelte';
 	import type { Book } from '$lib/state/user-state.svelte';
 
 	interface BookCategoryProps {

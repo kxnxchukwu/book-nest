@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { Header, Toast } from '$components';
+	import { Header, Toast } from '$components/index.svelte.js';
 	import favicon from '$lib/assets/favicon.svg';
 	import './../app.css';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { setUserState } from '$lib/state/user-state.svelte.js';
+	import { setUserState } from '$lib/state/user-state.svelte';
 
 	let { children, data } = $props();
 	let { session, supabase } = $derived(data);
