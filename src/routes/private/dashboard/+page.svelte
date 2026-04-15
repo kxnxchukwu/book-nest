@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BookCategory, AddBookModal, ReadingCalendar } from '$components/index.svelte';
+	import { BookCategory, AddBookModal, ReadingCalendar } from '$components';
 	import { getUserState } from '$lib/state/user-state.svelte';
 	import Icon from '@iconify/svelte';
 
@@ -109,7 +109,6 @@
 </div>
 
 <AddBookModal open={modalOpen} onclose={() => (modalOpen = false)} />
-<ReadingCalendar />
 
 <style>
 	.dashboard {
