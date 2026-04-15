@@ -78,12 +78,6 @@
 			booksToDisplay={userContext.getUnreadBooks()}
 			categoryName="Recently added, unread"
 		/>
-		{#if userContext.getFavoriteGenre()}
-			<BookCategory
-				booksToDisplay={userContext.getBooksFromFavoriteGenre()}
-				categoryName={`From your favorite genre · ${userContext.getFavoriteGenre()}`}
-			/>
-		{/if}
 		<a href="/private/library" class="view-all-link">
 			View all {allBooks.length} books →
 		</a>
